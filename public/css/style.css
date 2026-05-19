@@ -1,0 +1,184 @@
+:root {
+    --bg-main: #0c0a09;
+    --bg-card: #1c1917;
+    --primary: #e11d48;
+    --text: #f5f5f4;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: var(--bg-card);
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2e2a24;
+}
+
+.brand {
+    color: var(--primary);
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Bố cục danh sách phim */
+.movie-grid {
+    display: grid;
+    grid-template-cols: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.movie-card {
+    background: var(--bg-card);
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    padding: 1.25rem;
+    gap: 1rem;
+    border: 1px solid #2e2a24;
+}
+
+.movie-card img {
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+/* Nút bấm chung */
+.btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #be123c;
+}
+
+.btn:disabled {
+    background: #44403c;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Bố cục trang đặt vé */
+.booking-layout {
+    display: grid;
+    grid-template-cols: 1.8fr 1.2fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .booking-layout {
+        grid-template-cols: 1fr;
+    }
+}
+
+/* Màn hình rạp phim */
+.screen {
+    width: 100%;
+    height: 6px;
+    background: #e5e5e5;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+}
+
+/* Sơ đồ ghế ngồi */
+.seat-grid {
+    display: grid;
+    grid-template-cols: repeat(8, 1fr);
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.seat {
+    padding: 0.5rem 0;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.seat.available {
+    background: #292524;
+    color: #a8a29e;
+}
+
+.seat.available.vip {
+    background: #4c1d95;
+    color: #ddd6fe;
+}
+
+.seat.selected {
+    background: #f97316 !important;
+    color: white;
+}
+
+.seat.booked {
+    background: #57534e !important;
+    color: #1c1917 !important;
+    cursor: not-allowed;
+}
+
+/* Ô nhập thông tin khách hàng */
+.form-group {
+    margin-top: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+    color: #a8a29e;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.6rem;
+    background: #0c0a09;
+    border: 1px solid #44403c;
+    border-radius: 0.4rem;
+    color: white;
+    box-sizing: border-box;
+}
+
+/* Khung hóa đơn */
+.invoice-panel {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #2e2a24;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Ẩn các trang khi chưa dùng đến */
+.hidden {
+    display: none !important;
+}

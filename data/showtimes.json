@@ -1,0 +1,258 @@
+[
+    {
+        "id": "st1",
+        "movieId": "m1",
+        "time": "19:00",
+        "room": "IMAX Room 1",
+        "seats": {
+            "A1": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A2": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A3": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A4": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A5": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A6": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A7": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A8": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B1": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B2": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B3": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B4": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B5": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B6": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B7": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B8": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "C1": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C2": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C3": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C4": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C5": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C6": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C7": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C8": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            }
+        }
+    },
+    {
+        "id": "st2",
+        "movieId": "m2",
+        "time": "15:30",
+        "room": "L'amour Room 3",
+        "seats": {
+            "A1": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A2": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A3": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A4": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A5": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A6": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A7": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "A8": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B1": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B2": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B3": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B4": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B5": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B6": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B7": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "B8": {
+                "status": "available",
+                "price": 95000,
+                "type": "thuong"
+            },
+            "C1": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C2": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C3": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C4": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C5": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C6": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C7": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            },
+            "C8": {
+                "status": "available",
+                "price": 120000,
+                "type": "vip"
+            }
+        }
+    }
+]
