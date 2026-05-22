@@ -8,8 +8,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = 3000;
-
+// Thay vì const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 // Đường dẫn lưu trữ database dạng file JSON
 const DATA_DIR = path.join(__dirname, 'data');
 const MOVIES_FILE = path.join(DATA_DIR, 'movies.json');
