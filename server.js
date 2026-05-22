@@ -9,7 +9,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: true } });
 
+<<<<<<< HEAD
 const PORT = process.env.PORT || 10000;
+=======
+// Thay vì const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+// Đường dẫn lưu trữ database dạng file JSON
+>>>>>>> 82eed77c7897fc274792af7dd22ae93cfdefedcc
 const DATA_DIR = path.join(__dirname, 'data');
 const MOVIES_FILE = path.join(DATA_DIR, 'movies.json');
 const SHOWTIMES_FILE = path.join(DATA_DIR, 'showtimes.json');
@@ -109,6 +115,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+<<<<<<< HEAD
 // 2. TẤT CẢ CÁC API ROUTES PHẢI NẰM Ở ĐÂY
 app.get('/api/cinemas', (req, res) => {
     res.json([
@@ -139,3 +146,9 @@ app.get('/api/showtimes/:movieId', (req, res) => {
 
 // 3. CUỐI CÙNG MỚI LÀ LỆNH KHỞI CHẠY SERVER
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+=======
+// Kích hoạt server lắng nghe
+server.listen(PORT, () => {
+    console.log(`🚀 Hệ thống rạp phim chạy mượt mà tại: http://localhost:${PORT}`);
+});
+>>>>>>> 82eed77c7897fc274792af7dd22ae93cfdefedcc
