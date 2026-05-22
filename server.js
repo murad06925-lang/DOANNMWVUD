@@ -34,6 +34,11 @@ try {
 } catch (e) { console.error("Lỗi đọc dữ liệu:", e); }
 
 function saveToDisk() {
+    // Nếu đang chạy trên Vercel (có biến môi trường VERCEL), bỏ qua việc lưu file
+    if (process.env.VERCEL) {
+        console.log("Đang chạy trên Vercel, bỏ qua lưu file xuống đĩa.");
+        return;
+    }
     fs.writeFileSync(SHOWTIMES_FILE, JSON.stringify(showtimesData, null, 4));
 }
 
