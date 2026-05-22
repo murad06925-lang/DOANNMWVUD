@@ -1,16 +1,12 @@
 {
   "name": "cintour",
   "version": "1.0.0",
-  "main": "server.js", 
+  "main": "server.js",
   "scripts": {
-<<<<<<< HEAD
     "start": "node server.js",
     "build:css": "npx @tailwindcss/cli -i ./public/css/tailwind-input.css -o ./public/css/tailwind.css --minify --content ./public/index.html",
     "dev:css": "npx @tailwindcss/cli -i ./public/css/tailwind-input.css -o ./public/css/tailwind.css --watch --content ./public/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
-=======
-    "start": "node server.js"
->>>>>>> 82eed77c7897fc274792af7dd22ae93cfdefedcc
   },
   "dependencies": {
     "cors": "^2.8.6",
