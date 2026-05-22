@@ -1,0 +1,39 @@
+.menu
+{
+    display: flex;
+}
+.menu li
+{
+    list-style-type: none;
+    background-color:aquamarine;
+ 
+    color: blue;
+    padding: 10px;
+}
+
+.menu li:hover
+{
+    background-color: yellow;
+    border-radius: 5px;
+    font-weight: bold;  
+}
+
+
+.menudoc
+{
+    display: fixed;
+}
+.menudoc li{
+    font-size: 20px;
+    background-color: rgb(53, 134, 240);
+    width: 250px;
+    list-style-type: none;
+    margin: 1px;
+}
+.menudoc li:hover
+{
+    background-color: rgb(28, 165, 207);
+    font-style: italic;
+    filter:brightness(130%) ;
+}
+

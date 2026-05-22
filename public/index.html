@@ -2,699 +2,278 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>CGV Cinemas Ultimate - Premium Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CGV Cinemas | Đặt vé ưu đãi, chọn ghế realtime</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/socket.io/socket.io.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght=300;400;600;700;900&display=swap');
-        body { font-family: 'Montserrat', sans-serif; background-color: #09090b; }
-        .glass { background: rgba(18, 18, 22, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(63, 63, 70, 0.3); }
-        .screen { 
-            background: linear-gradient(to bottom, rgba(220, 38, 38, 0.7) 0%, transparent 100%); 
-            transform: perspective(400px) rotateX(-20deg);
-            filter: drop-shadow(0px 8px 16px rgba(220, 38, 38, 0.4));
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        body { background: #0a0a0c; scroll-behavior: smooth; }
+        .glass-premium {
+            background: rgba(18, 18, 24, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
+        .screen-glow {
+            background: linear-gradient(0deg, rgba(239,68,68,0.4) 0%, transparent 100%);
+            transform: perspective(380px) rotateX(-10deg);
+            box-shadow: 0 12px 24px -8px rgba(220,38,38,0.4);
+        }
+        .seat-vip { background: rgba(126,34,206,0.5); border-color: #a855f7; }
+        .seat-double { background: rgba(236,72,153,0.4); border-color: #f472b6; }
+        .seat-empty { background: #27272a; border-color: #3f3f46; }
+        .seat-selected { background: #f59e0b; border-color: #fbbf24; color: #000; font-weight: bold; box-shadow: 0 0 0 2px #fcd34d; }
+        .toast-message { animation: fadeUp 0.25s ease-out; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 12px; }
     </style>
 </head>
-<body class="text-zinc-100 min-h-screen">
+<body class="text-gray-200 antialiased">
 
-    <header class="sticky top-0 z-40 glass border-b border-zinc-800 px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-6">
-            <span onclick="showPage('home-page')" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-amber-500 tracking-tighter cursor-pointer">CGV CINEMAS</span>
-            <nav class="hidden md:flex items-center gap-4 text-xs font-bold text-zinc-400">
-                <button onclick="showPage('home-page')" class="hover:text-white transition">LỊCH CHIẾU</button>
-                <button onclick="scrollToSection('uudai-section')" class="hover:text-white transition">ƯU ĐÃI KHỦNG</button>
-                <button onclick="openMyTickets()" class="hover:text-emerald-400 transition flex items-center gap-1">🎟️ VÉ CỦA TÔI (<span id="ticket-count">0</span>)</button>
-            </nav>
-        </div>
-        <div class="flex items-center gap-4">
-            <div id="user-info" class="text-sm font-semibold text-zinc-400"></div>
-            <button id="btn-login-nav" onclick="openLoginModal()" class="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-700 transition">ĐĂNG NHẬP</button>
-        </div>
-    </header>
+<!-- Nút MENU LAB cố định góc dưới phải -->
+<a href="menu.html" target="_blank" style="position:fixed; bottom:20px; right:20px; background:#ef4444; color:white; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:bold; z-index:999; box-shadow:0 4px 10px rgba(0,0,0,0.3);">📂 MENU LAB</a>
 
-    <div id="trailer-modal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="relative w-full max-w-3xl aspect-video bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
-            <button onclick="closeTrailerModal()" class="absolute top-3 right-4 z-50 text-white bg-black/60 hover:bg-red-600 px-3 py-1 rounded-full text-sm transition">Đóng Trailer ✕</button>
-            <iframe id="trailer-video" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 glass-premium border-b border-white/10 px-5 md:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+    <div class="flex items-center gap-4">
+        <h1 onclick="showHomePage()" class="text-2xl md:text-3xl font-black bg-gradient-to-r from-red-500 to-amber-400 bg-clip-text text-transparent cursor-pointer">CGV CINEMAS</h1>
     </div>
+    <div class="flex items-center gap-3 flex-1 max-w-md">
+        <input type="text" id="global-search" placeholder="🔍 Tìm phim, đạo diễn, diễn viên..." oninput="filterMovies()" class="w-full bg-zinc-900/80 border border-zinc-700 rounded-2xl py-2.5 px-4 text-sm focus:outline-none focus:border-red-500">
+        <select id="sort-selector" onchange="filterMovies()" class="bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2.5 text-xs font-bold"><option value="default">Nổi bật</option><option value="az">A→Z</option><option value="za">Z→A</option><option value="rating">Đánh giá</option></select>
+    </div>
+    <div class="flex items-center gap-3">
+        <div id="user-area" class="relative"><button id="user-greeting" onclick="toggleUserDropdown()" class="hidden bg-zinc-900/70 border border-zinc-700 px-4 py-2 rounded-xl text-xs font-bold">👤 <span id="username-display"></span> ▾</button><div id="user-dropdown" class="hidden absolute right-0 top-10 w-44 glass-premium rounded-2xl p-2 z-50"><button onclick="logoutUser()" class="w-full text-left px-3 py-2 hover:bg-red-600/20 rounded-lg text-xs">🚪 Đăng xuất</button></div></div>
+        <button id="login-nav-btn" onclick="openLoginModal()" class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-xl text-xs font-bold">ĐĂNG NHẬP</button>
+        <button onclick="openMyTicketModal()" class="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-xl text-xs">🎟️ <span id="badge-ticket-count" class="bg-red-600 px-1.5 py-0.5 rounded-full ml-1">0</span></button>
+    </div>
+</header>
 
-    <div id="login-modal" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass p-8 rounded-3xl border border-zinc-800 max-w-sm w-full space-y-6 relative shadow-2xl">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition">✕</button>
-            <div class="flex justify-center gap-6 border-b border-zinc-800 pb-3 text-sm font-bold">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="text-red-500 border-b-2 border-red-500 pb-3 -mb-[14px] transition">ĐĂNG NHẬP</button>
-                <button id="tab-register" onclick="switchAuthTab('register')">
-ĐĂNG KÝ
-</button>
-            </div>
-            <div id="form-login" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3 pt-2">
-    <button type="button" onclick="loginWithApp('Google')" class="flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold py-3 rounded-xl transition">
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 h-4" alt="Google">
-        GOOGLE
-    </button>
-    <button type="button" onclick="loginWithApp('Facebook')" class="flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-bold py-3 rounded-xl transition">
-        <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" class="w-4 h-4" alt="Facebook">
-        FACEBOOK
-    </button>
+<div id="toast-root" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2"></div>
+
+<!-- HOMEPAGE -->
+<main id="homepage" class="max-w-7xl mx-auto px-5 py-8 space-y-10">
+    <section class="glass-premium rounded-3xl p-8 border border-white/10"><div class="flex flex-col md:flex-row justify-between items-center gap-6"><div><p class="text-red-400 text-xs font-black tracking-[.3em]">PREMIUM CINEMA</p><h2 class="text-3xl md:text-4xl font-black mt-2">Đặt vé nhanh<br>Chọn ghế realtime</h2></div><div class="flex gap-3"><button onclick="document.getElementById('movie-grid-section').scrollIntoView({behavior:'smooth'})" class="bg-red-600 px-6 py-3 rounded-2xl font-bold text-sm">🎬 XEM PHIM</button><button onclick="document.getElementById('offer-section').scrollIntoView({behavior:'smooth'})" class="bg-zinc-800 border border-zinc-700 px-6 py-3 rounded-2xl text-sm font-bold">🔥 ƯU ĐÃI</button></div></div></section>
+
+    <div class="flex flex-wrap justify-between items-center gap-3"><div class="flex gap-3 items-center"><span class="text-sm font-bold text-zinc-400">🎬 LỌC PHIM:</span><select id="genre-select" onchange="filterMovies()" class="bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2 text-sm"><option value="all">📽️ Tất cả thể loại</option></select></div><span id="movie-count-badge" class="text-xs text-zinc-500 bg-zinc-900/60 px-3 py-1 rounded-full"></span></div>
+
+    <div id="movie-grid-section"><h3 class="text-xl font-black text-red-500 mb-5">📽️ PHIM ĐANG CHIẾU</h3><div id="movie-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div><div class="flex justify-center mt-8"><button id="load-more-btn" onclick="increaseLoadMore()" class="hidden bg-zinc-800 px-6 py-3 rounded-xl text-sm font-bold">Xem thêm +</button></div></div>
+
+    <div id="offer-section" class="border-t border-zinc-800/70 pt-8"><h3 class="text-2xl font-black text-amber-400">🎁 ƯU ĐÃI THÀNH VIÊN</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5"><div class="glass-premium p-5 rounded-2xl"><span class="text-3xl">🍿</span><h4 class="font-bold mt-1">COMBO 79K</h4><p class="text-xs">Bắp lớn + nước</p></div><div class="glass-premium p-5 rounded-2xl"><span class="text-3xl">💳</span><h4 class="font-bold mt-1">GIẢM 20% QR</h4><p class="text-xs">MoMo / ZaloPay</p></div><div class="glass-premium p-5 rounded-2xl"><span class="text-3xl">🎫</span><h4 class="font-bold mt-1">VÉ THỨ 7</h4><p class="text-xs">Chỉ 50k/suất sáng</p></div></div></div>
+</main>
+
+<!-- DETAIL PAGE -->
+<main id="detail-page" class="hidden max-w-6xl mx-auto px-5 py-8 glass-premium rounded-3xl my-8"><button onclick="showHomePage()" class="text-sm text-zinc-400 mb-4">← Quay lại</button><div class="grid md:grid-cols-3 gap-8"><div><img id="detail-poster" class="w-full rounded-2xl border border-zinc-700"></div><div class="md:col-span-2 space-y-4"><h2 id="detail-title" class="text-3xl font-black"></h2><div class="flex flex-wrap gap-2"><span id="detail-genre" class="bg-red-600/20 px-3 py-1 rounded-full text-xs"></span><span id="detail-duration" class="bg-zinc-800 px-3 py-1 rounded-full text-xs"></span><div id="detail-stars" class="text-amber-400 text-sm"></div></div><p id="detail-desc" class="text-zinc-300 text-sm leading-relaxed"></p><p class="text-sm"><span class="font-bold">Đạo diễn:</span> <span id="detail-director"></span><br><span class="font-bold">Diễn viên:</span> <span id="detail-cast"></span></p><div class="grid grid-cols-2 gap-2 pt-2"><select id="cinema-branch" class="bg-zinc-900 p-2 rounded-xl text-sm"><option>CGV Vincom</option><option>CGV Crescent Mall</option></select><input type="date" id="show-date" class="bg-zinc-900 p-2 rounded-xl text-sm"><select id="showtime-hour" class="bg-zinc-900 p-2 rounded-xl text-sm"><option>10:00</option><option>13:30</option><option>17:20</option><option>20:00</option></select></div><div class="flex gap-3 pt-3"><button id="trailer-btn" class="bg-zinc-800 px-5 py-3 rounded-xl text-sm font-bold">▶ Trailer</button><button id="booking-nav-btn" class="bg-red-600 flex-1 py-3 rounded-xl font-bold text-sm">🎟️ CHỌN GHẾ</button></div></div></div></main>
+
+<!-- BOOKING PAGE -->
+<main id="booking-page" class="hidden max-w-7xl mx-auto px-5 py-8"><div class="grid lg:grid-cols-3 gap-8"><div class="lg:col-span-2 glass-premium p-6 rounded-3xl"><button onclick="goBackToDetail()" class="text-xs text-zinc-400 mb-4">← Quay lại</button><div class="flex flex-col items-center"><div class="screen-glow w-4/5 h-3 rounded-t-lg mb-2"></div><p class="text-[10px] text-zinc-500">MÀN HÌNH</p></div><div class="flex justify-center gap-4 text-xs my-4"><span>⬜ Thường</span><span>🟪 VIP</span><span>🟨 Đã chọn</span></div><div id="seat-layout" class="grid grid-cols-8 gap-2 max-w-md mx-auto"></div></div><div class="glass-premium p-6 rounded-3xl space-y-4"><h3 class="font-black text-xl">HÓA ĐƠN</h3><p><span class="text-zinc-400">Phim:</span> <strong id="booking-movie-title"></strong></p><p><span class="text-zinc-400">Suất:</span> <span id="booking-showtime"></span></p><p><span class="text-zinc-400">Ghế:</span> <span id="selected-seats-label" class="text-amber-400 font-bold">-</span></p><p><span class="text-zinc-400 text-2xl font-black">Tổng: <span id="total-price-label" class="text-emerald-400">0đ</span></span></p><div id="qr-preview" class="hidden text-center"><img id="qr-code-preview" class="w-24 h-24 mx-auto"><p class="text-[10px]">Quét QR thanh toán</p></div><button id="confirm-pay-btn" disabled onclick="processPayment()" class="w-full bg-red-700 disabled:opacity-30 py-3 rounded-xl font-bold">XÁC NHẬN</button></div></div></main>
+
+<!-- SUCCESS -->
+<main id="success-page" class="hidden max-w-sm mx-auto mt-20 text-center glass-premium p-8 rounded-3xl"><div class="text-emerald-400 text-6xl">✓</div><h2 class="text-2xl font-black mt-2">ĐẶT VÉ THÀNH CÔNG!</h2><p id="final-ticket-code" class="text-yellow-300 font-mono text-sm"></p><img id="final-qr-img" class="w-32 h-32 mx-auto my-3"><button onclick="showHomePage()" class="bg-zinc-800 px-6 py-2 rounded-xl text-sm">Trang chủ</button></main>
+
+<!-- MODALS -->
+<div id="login-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+    <div class="glass-premium rounded-3xl p-7 max-w-md w-full border border-white/20">
+        <div class="flex justify-between border-b border-zinc-700 pb-3"><h3 class="font-black">THÀNH VIÊN CGV</h3><button onclick="closeLoginModal()" class="text-zinc-400 text-xl">&times;</button></div>
+        <div class="flex gap-4 mt-4 border-b border-zinc-800"><button id="login-tab-btn" onclick="switchAuth('login')" class="pb-2 text-red-500 border-b-2 border-red-500 font-bold">ĐĂNG NHẬP</button><button id="register-tab-btn" onclick="switchAuth('register')" class="pb-2 text-zinc-400">ĐĂNG KÝ</button></div>
+        <div id="login-form" class="mt-5 space-y-4"><input type="text" id="login-username" placeholder="Tài khoản" class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl"><input type="password" id="login-password" placeholder="Mật khẩu" class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl"><button onclick="submitLogin()" class="w-full bg-red-600 py-3 rounded-xl font-bold">ĐĂNG NHẬP</button><div class="text-center text-xs text-zinc-500">Demo: demo / 123</div></div>
+        <div id="register-form" class="hidden mt-5 space-y-4"><input type="text" id="reg-fullname" placeholder="Họ tên" class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl"><input type="text" id="reg-username" placeholder="Tài khoản" class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl"><input type="password" id="reg-password" placeholder="Mật khẩu" class="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-xl"><button onclick="submitRegister()" class="w-full bg-amber-600 py-3 rounded-xl font-bold">TẠO TÀI KHOẢN</button></div>
+    </div>
 </div>
 
-<div class="relative flex py-1 items-center">
-    <div class="flex-grow border-t border-zinc-800/80"></div>
-    <span class="flex-shrink mx-4 text-[10px] text-zinc-500 font-bold tracking-widest">HOẶC</span>
-    <div class="flex-grow border-t border-zinc-800/80"></div>
-</div>
-                <div>
-                    <label class="text-[10px] text-zinc-400 font-black block mb-1 uppercase tracking-wider">Tài khoản / Email</label>
-                  <input type="text" id="login-user" placeholder="Nhập tài khoản"
-class="w-full bg-zinc-900/60 border border-zinc-800 p-3 rounded-xl">
-                </div>
-                <div>
-                    <label class="text-[10px] text-zinc-400 font-black block mb-1 uppercase tracking-wider">Mật khẩu</label>
-                    <input type="password" id="login-pass" placeholder="Nhập mật khẩu" class="w-full bg-zinc-900/60 border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-500 text-white font-medium transition">
-                </div>
-                <button onclick="doLogin('login-user')" class="w-full bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold py-3.5 rounded-xl hover:from-red-700 hover:to-rose-700 transition text-xs tracking-wider">XÁC NHẬN ĐĂNG NHẬP</button>
-            </div>
-           <div id="form-register" class="hidden space-y-4">
-    <div>
-        <label class="text-[10px] text-zinc-400 font-black block mb-1 uppercase tracking-wider">
-            Họ và tên
-        </label>
-        <input type="text" id="reg-name"
-            placeholder="Nhập họ tên"
-            class="w-full bg-zinc-900/60 border border-zinc-800 p-3 rounded-xl">
-    </div>
+<div id="tickets-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4"><div class="glass-premium rounded-3xl p-6 max-w-2xl w-full max-h-[80vh] overflow-auto"><div class="flex justify-between"><h2 class="text-xl font-black text-emerald-400">🎟️ VÉ ĐÃ ĐẶT</h2><button onclick="closeTicketsModal()" class="text-white text-2xl">&times;</button></div><div id="ticket-list-container" class="mt-5 space-y-4"></div></div></div>
 
-    <div>
-        <label class="text-[10px] text-zinc-400 font-black block mb-1 uppercase tracking-wider">
-            Tài khoản
-        </label>
-        <input type="text" id="reg-user"
-            placeholder="Nhập tài khoản"
-            class="w-full bg-zinc-900/60 border border-zinc-800 p-3 rounded-xl">
-    </div>
+<div id="trailer-modal" class="hidden fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4"><div class="relative w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden"><iframe id="trailer-frame" class="w-full h-full" frameborder="0" allowfullscreen></iframe><button onclick="closeTrailer()" class="absolute top-3 right-3 bg-black/70 px-3 py-1 rounded-full text-sm">✕ Đóng</button></div></div>
 
-    <div>
-        <label class="text-[10px] text-zinc-400 font-black block mb-1 uppercase tracking-wider">
-            Mật khẩu
-        </label>
-        <input type="password" id="reg-pass"
-            placeholder="Nhập mật khẩu"
-            class="w-full bg-zinc-900/60 border border-zinc-800 p-3 rounded-xl">
-    </div>
+<script>
+// ==================== DANH SÁCH PHIM 20 PHIM ====================
+let allMovies = [
+  { _id: "m1", title: "AVENGERS: ENDGAME", genre: "Hành Động, Viễn Tưởng", duration: "181 phút", rating: "4.9", ratingStars: 5, director: "Russo Bros", cast: "Robert Downey Jr., Chris Evans", description: "Biệt đội siêu anh hùng tập hợp lần cuối chống lại Thanos.", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", trailer: "https://www.youtube.com/embed/TcMBFSGVi1c" },
+  { _id: "m2", title: "DORAEMON: ĐẢO GIẤU VÀNG", genre: "Hoạt Hình, Gia Đình", duration: "105 phút", rating: "4.7", ratingStars: 4, director: "Kazuaki Imai", cast: "Doraemon, Nobita", description: "Cuộc phiêu lưu tìm kho báu trên đảo hoang.", poster: "https://image.tmdb.org/t/p/w500/8uK3N4jZsk0bK0N8h9D2w1wYIgu.jpg", trailer: "https://www.youtube.com/embed/M97R_Uf4Y40" },
+  { _id: "m3", title: "LẬT MẶT 7: MỘT ĐIỀU ƯỚC", genre: "Tâm Lý, Gia Đình", duration: "138 phút", rating: "4.8", ratingStars: 5, director: "Lý Hải", cast: "Thanh Hiền, Trương Minh Cường", description: "Câu chuyện cảm động về tình mẫu tử.", poster: "https://image.tmdb.org/t/p/w500/w79O00Iis2qRbeS1h3vDcooT5gO.jpg", trailer: "https://www.youtube.com/embed/9wG9vBvYvSg" },
+  { _id: "m4", title: "CONAN: NGÔI SAO NĂM CÁNH", genre: "Trinh Thám, Hoạt Hình", duration: "111 phút", rating: "4.6", ratingStars: 4, director: "Chika Nagaoka", cast: "Conan, Heiji", description: "Vụ án bí ẩn liên quan đến thanh kiếm cổ.", poster: "https://image.tmdb.org/t/p/w500/4MCKNAc6AbWjEsM2h9Xc29owo4z.jpg", trailer: "https://www.youtube.com/embed/a72YlEw_qRE" },
+  { _id: "m5", title: "SPIDER-MAN: NO WAY HOME", genre: "Siêu Anh Hùng", duration: "148 phút", rating: "4.9", ratingStars: 5, director: "Jon Watts", cast: "Tom Holland, Zendaya", description: "Đa vũ trụ hỗn loạn khi Spider-Man lộ danh tính.", poster: "https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg", trailer: "https://www.youtube.com/embed/JfVOs4VSpmA" },
+  { _id: "m6", title: "OPPENHEIMER", genre: "Chính Kịch, Lịch Sử", duration: "180 phút", rating: "4.9", ratingStars: 5, director: "Christopher Nolan", cast: "Cillian Murphy, Robert Downey Jr.", description: "Cha đẻ bom nguyên tử và những giằng xé nội tâm.", poster: "https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg", trailer: "https://www.youtube.com/embed/uYPbbksJxIg" },
+  { _id: "m7", title: "INTERSTELLAR", genre: "Khoa Học, Viễn Tưởng", duration: "169 phút", rating: "4.9", ratingStars: 5, director: "Christopher Nolan", cast: "Matthew McConaughey, Anne Hathaway", description: "Hành trình xuyên hố đen tìm kiếm hành tinh mới.", poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg", trailer: "https://www.youtube.com/embed/zSWdZVtXT7E" },
+  { _id: "m8", title: "JOHN WICK: CHAPTER 4", genre: "Hành Động", duration: "169 phút", rating: "4.8", ratingStars: 5, director: "Chad Stahelski", cast: "Keanu Reeves, Donnie Yen", description: "Sát thủ huyền thoại đối đầu với tổ chức High Table.", poster: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg", trailer: "https://www.youtube.com/embed/qEVUtrk8_B4" },
+  { _id: "m9", title: "DUNE: PART TWO", genre: "Khoa Học, Viễn Tưởng", duration: "166 phút", rating: "4.8", ratingStars: 5, director: "Denis Villeneuve", cast: "Timothée Chalamet, Zendaya", description: "Paul Atreides lãnh đạo người Fremen báo thù.", poster: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg", trailer: "https://www.youtube.com/embed/Way9Dexny3w" },
+  { _id: "m10", title: "DEADPOOL & WOLVERINE", genre: "Hành Động, Hài Hước", duration: "128 phút", rating: "4.7", ratingStars: 5, director: "Shawn Levy", cast: "Ryan Reynolds, Hugh Jackman", description: "Deadpool team-up với Wolverine giải cứu đa vũ trụ.", poster: "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg", trailer: "https://www.youtube.com/embed/73_1biulkYk" },
+  { _id: "m11", title: "THE BATMAN", genre: "Hành Động, Tội Phạm", duration: "176 phút", rating: "4.8", ratingStars: 5, director: "Matt Reeves", cast: "Robert Pattinson, Zoë Kravitz", description: "Batman truy tìm Riddler trong thành phố Gotham tăm tối.", poster: "https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg", trailer: "https://www.youtube.com/embed/mqqft2x_Aa4" },
+  { _id: "m12", title: "AVATAR: THE WAY OF WATER", genre: "Phiêu Lưu, Viễn Tưởng", duration: "192 phút", rating: "4.7", ratingStars: 5, director: "James Cameron", cast: "Sam Worthington, Zoe Saldana", description: "Cuộc phiêu lưu dưới đại dương Pandora.", poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", trailer: "https://www.youtube.com/embed/d9MyW72ELq0" },
+  { _id: "m13", title: "BARBIE", genre: "Hài Hước, Giả Tưởng", duration: "114 phút", rating: "4.6", ratingStars: 5, director: "Greta Gerwig", cast: "Margot Robbie, Ryan Gosling", description: "Barbie khám phá thế giới thực đầy màu sắc.", poster: "https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg", trailer: "https://www.youtube.com/embed/pBk4NYhWNMM" },
+  { _id: "m14", title: "TOP GUN: MAVERICK", genre: "Hành Động", duration: "130 phút", rating: "4.8", ratingStars: 5, director: "Joseph Kosinski", cast: "Tom Cruise, Miles Teller", description: "Phi công huyền thoại Maverick trở lại huấn luyện.", poster: "https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg", trailer: "https://www.youtube.com/embed/giXco2jaZ_4" },
+  { _id: "m15", title: "MISSION: IMPOSSIBLE - DEAD RECKONING", genre: "Hành Động, Điệp Viên", duration: "163 phút", rating: "4.8", ratingStars: 5, director: "Christopher McQuarrie", cast: "Tom Cruise, Hayley Atwell", description: "Ethan Hunt đối đầu với trí tuệ nhân tạo The Entity.", poster: "https://image.tmdb.org/t/p/w500/NNxYkU70HPurnNCSiCjYAmacwm.jpg", trailer: "https://www.youtube.com/embed/avz06PDqDbM" },
+  { _id: "m16", title: "DOCTOR STRANGE: MULTIVERSE OF MADNESS", genre: "Siêu Anh Hùng", duration: "126 phút", rating: "4.7", ratingStars: 5, director: "Sam Raimi", cast: "Benedict Cumberbatch, Elizabeth Olsen", description: "Du hành đa vũ trụ điên loạn cùng Wanda.", poster: "https://image.tmdb.org/t/p/w500/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg", trailer: "https://www.youtube.com/embed/aWzlQ2N6qqg" },
+  { _id: "m17", title: "FAST X", genre: "Hành Động, Đua Xe", duration: "141 phút", rating: "4.5", ratingStars: 4, director: "Louis Leterrier", cast: "Vin Diesel, Jason Momoa", description: "Gia đình Toretto đối đầu với kẻ thù Dante.", poster: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", trailer: "https://www.youtube.com/embed/32RAq6JzY-w" },
+  { _id: "m18", title: "THE FLASH", genre: "Siêu Anh Hùng", duration: "144 phút", rating: "4.5", ratingStars: 4, director: "Andy Muschietti", cast: "Ezra Miller, Michael Keaton", description: "Flash du hành thời gian để cứu mẹ.", poster: "https://image.tmdb.org/t/p/w500/rktDFPbfHfUbArZ6OOOKsXv0ADm.jpg", trailer: "https://www.youtube.com/embed/hebWYacbdvc" },
+  { _id: "m19", title: "TRANSFORMERS: RISE OF THE BEASTS", genre: "Hành Động, Viễn Tưởng", duration: "127 phút", rating: "4.6", ratingStars: 4, director: "Steven Caple Jr.", cast: "Anthony Ramos, Dominique Fishback", description: "Autobots đối đầu với tộc thú Maximals.", poster: "https://image.tmdb.org/t/p/w500/gPbM0MK8CP8A174rmUwGsADNYKD.jpg", trailer: "https://www.youtube.com/embed/WWWDskI46Js" },
+  { _id: "m20", title: "ELEMENTAL", genre: "Hoạt Hình, Tình Cảm", duration: "101 phút", rating: "4.7", ratingStars: 5, director: "Peter Sohn", cast: "Leah Lewis, Mamoudou Athie", description: "Tình yêu giữa lửa và nước tại thành phố Elemental.", poster: "https://image.tmdb.org/t/p/w500/4iQJfT9pR2VlrPAG5ynZZgj0lsl.jpg", trailer: "https://www.youtube.com/embed/hXQ7YcH9hII" }
+];
 
-    <button onclick="doRegister()"
-        class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-zinc-950 font-black py-3.5 rounded-xl text-xs tracking-wider">
-        TẠO TÀI KHOẢN MỚI
-    </button>
-</div>
-                
-            </div>
-        </div>
-    </div>
+// ==================== KHỞI TẠO ====================
+let filteredMovies = [...allMovies];
+let visibleCount = 6;
+let currentMovieDetail = null;
+let selectedSeatsMap = new Map();
+let loggedIn = false;
+let currentUsername = "";
+let userBookings = [];
+let currentBookingSeats = [];
 
-    <div id="tickets-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass p-8 rounded-3xl border border-zinc-800 max-w-xl w-full space-y-6 relative max-h-[80vh] overflow-y-auto">
-            <button onclick="closeMyTickets()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition">✕</button>
-            <h2 class="text-lg font-black text-emerald-400 tracking-wider flex items-center gap-2">🎟️ LỊCH SỬ VÉ PHIM ĐÃ ĐẶT THANH CÔNG</h2>
-            <div id="my-tickets-list" class="space-y-4"></div>
-        </div>
-    </div>
+function toast(msg, type='info'){ let r=document.getElementById('toast-root'); let d=document.createElement('div'); d.className=`toast-message glass-premium text-xs p-3 rounded-xl border-l-4 ${type==='error'?'border-red-500':'border-emerald-500'} bg-black/80`; d.innerText=msg; r.appendChild(d); setTimeout(()=>d.remove(),2500);}
+function showPage(page){['homepage','detail-page','booking-page','success-page'].forEach(p=>document.getElementById(p).classList.add('hidden')); document.getElementById(page).classList.remove('hidden');}
+function showHomePage(){ showPage('homepage'); renderMovieGrid(); }
 
-    <main id="home-page" class="p-8 max-w-6xl mx-auto space-y-16">
-        <div class="space-y-6">
-            <div id="genre-list" class="flex flex-wrap gap-3 mb-4"></div>
-            <div class="border-b border-zinc-800 pb-4 flex justify-between items-baseline">
-                <h2 class="text-xl font-black tracking-wider text-red-500">DANH SÁCH PHIM ĐANG CHIẾU</h2>
-                <span class="text-xs text-zinc-500 font-bold">💥 HỆ THỐNG CẬP NHẬT LIÊN TỤC</span>
-            </div>
-            <div id="movie-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-        </div>
-
-        <div id="uudai-section" class="space-y-6 pt-6 border-t border-zinc-900">
-            <div class="pb-2">
-                <h2 class="text-xl font-black tracking-wider text-amber-500">🎁 CHƯƠNG TRÌNH ƯU ĐÃI THÀNH VIÊN</h2>
-                <p class="text-xs text-zinc-500 mt-1">Đừng bỏ lỡ các deal giảm giá vé và bắp nước độc quyền hôm nay</p>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="glass p-5 rounded-2xl border border-zinc-800 flex gap-4 items-center">
-                    <span class="text-3xl">🍿</span>
-                    <div>
-                        <h4 class="font-bold text-sm text-white">ĐỒNG GIÁ VÉ 60K</h4>
-                        <p class="text-xs text-zinc-400 mt-0.5">Áp dụng cho mọi suất chiếu ghế Thường trước 12h trưa.</p>
-                    </div>
-                </div>
-                <div class="glass p-5 rounded-2xl border border-zinc-800 flex gap-4 items-center">
-                    <span class="text-3xl">🥤</span>
-                    <div>
-                        <h4 class="font-bold text-sm text-white">COMBO CGV SWEET</h4>
-                        <p class="text-xs text-zinc-400 mt-0.5">Giảm ngay 20% khi mua kèm 1 bắp lớn + 2 nước ngọt.</p>
-                    </div>
-                </div>
-                <div class="glass p-5 rounded-2xl border border-zinc-800 flex gap-4 items-center">
-                    <span class="text-3xl">💳</span>
-                    <div>
-                        <h4 class="font-bold text-sm text-white">HOÀN TIỀN VÍ ĐIỆN TỬ</h4>
-                        <p class="text-xs text-zinc-400 mt-0.5">Quét QR thanh toán bằng Ví điện tử giảm tới 15.000đ.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <main id="detail-page" class="hidden p-8 max-w-5xl mx-auto glass rounded-3xl border border-zinc-800/80 my-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="md:col-span-1 relative">
-            <img id="detail-img" class="w-full h-[380px] object-cover rounded-2xl shadow-2xl border border-zinc-800" src="" alt="">
-        </div>
-<div class="md:col-span-2 flex flex-col space-y-6 overflow-y-auto max-h-[85vh] pr-3">
-            <div class="space-y-4">
-                <button onclick="showPage('home-page')" class="text-xs font-bold text-zinc-500 hover:text-white">← QUAY LẠI TRANG CHỦ</button>
-                <h2 id="detail-title" class="text-3xl font-black text-white uppercase tracking-tight"></h2>
-                
-                <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
-                    <span id="detail-genre" class="bg-red-600/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full"></span>
-                    <span id="detail-duration" class="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full"></span>
-                    <div id="detail-stars" class="flex text-amber-400 text-base"></div> 
-                    <span id="detail-rating" class="text-zinc-400 font-medium"></span>
-                </div>
-                
-                <div class="text-sm space-y-2 text-zinc-400 border-t border-zinc-800/80 pt-4 font-medium">
-                    <p>🎬 <strong class="text-zinc-300 ml-1">Đạo diễn:</strong> <span id="detail-director" class="text-white font-semibold ml-1"></span></p>
-                    <p>👥 <strong class="text-zinc-300 ml-1">Diễn viên chính:</strong> <span id="detail-cast" class="text-white font-semibold ml-1"></span></p>
-                </div>
-                <div class="border-t border-zinc-800 pt-3">
-                    <span class="text-[10px] uppercase font-black tracking-widest text-zinc-500 block mb-1">Tóm tắt nội dung phim</span>
-                   <p id="detail-desc" class="text-sm text-zinc-400 font-light leading-relaxed break-words whitespace-pre-line max-h-none overflow-visible"></p>
-                </div>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-zinc-800">
-                <button id="btn-watch-trailer" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-6 py-3.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    XEM VIDEO TRAILER
-                </button>
-                <button id="btn-go-booking" class="bg-red-600 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-red-700 transition shadow-lg text-sm flex-1"></button>
-            </div>
-        </div>
-        
-    </main>
-
-    <main id="booking-page" class="hidden p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 glass p-8 rounded-3xl border border-zinc-800 shadow-2xl">
-            <button onclick="showPage('detail-page')" class="text-xs font-bold text-zinc-500 hover:text-white mb-8 block">← QUAY LẠI MÔ TẢ PHIM</button>
-            <div class="w-full flex flex-col items-center mb-16">
-                <div class="screen w-4/5 h-4 bg-white rounded-t-xl mb-3"></div>
-                <p class="text-[10px] text-zinc-600 font-black tracking-widest">MÀN HÌNH TRUNG TÂM RẠP</p>
-            </div>
-            
-            <div class="flex justify-center gap-4 mb-6 text-xs font-bold font-mono">
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-zinc-900 border border-zinc-800 inline-block rounded"></span> Thường</div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-purple-950 border border-purple-800 inline-block rounded"></span> VIP</div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-pink-950 border border-pink-800 inline-block rounded"></span> Đôi</div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-500 inline-block rounded"></span> Bạn chọn</div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-zinc-800 inline-block rounded"></span> Đã bán</div>
-            </div>
-
-            <div id="seat-grid" class="grid grid-cols-8 gap-3 max-w-md mx-auto mb-8"></div>
-        </div>
-        <div class="glass p-8 rounded-3xl border border-zinc-800 flex flex-col justify-between space-y-6">
-            <div class="space-y-4">
-                <span class="text-[10px] font-black text-red-500 tracking-widest bg-red-500/10 px-2 py-1 rounded">HÓA ĐƠN ĐẶT VÉ</span>
-                <h3 id="ticket-title" class="text-xl font-black text-white uppercase mt-2"></h3>
-                <div class="text-xs space-y-3 border-t border-b border-zinc-800 py-4 font-medium text-zinc-400">
-                    <div class="flex justify-between"><span>Suất chiếu:</span><span id="ticket-time" class="text-white font-bold"></span></div>
-                    <div class="flex justify-between"><span>Phòng rạp:</span><span id="ticket-room" class="text-white font-bold"></span></div>
-                    <div class="flex justify-between"><span>Ghế chọn:</span><span id="ticket-seats" class="text-amber-500 font-black text-sm">-</span></div>
-                </div>
-                <div id="qr-container" class="hidden text-center p-4 bg-white rounded-2xl border border-zinc-200">
-                    <p class="text-[10px] text-zinc-900 font-black tracking-wider mb-2">QUÉT QR CODE ĐỂ THANH TOÁN VÉ</p>
-                    <img id="qr-img" class="w-32 h-32 mx-auto" src="" alt="QR">
-                </div>
-            </div>
-            <div>
-                <div class="flex justify-between items-baseline mb-4">
-                    <span class="text-xs text-zinc-400">Tổng thanh toán:</span>
-                    <span class="text-2xl font-black text-emerald-400"><span id="ticket-total">0</span>đ</span>
-                </div>
-                <button id="btn-pay" disabled onclick="payTicket()" class="w-full bg-red-600 text-white font-bold py-3.5 rounded-xl hover:bg-red-700 disabled:opacity-20 transition text-xs tracking-wider">XÁC NHẬN ĐÃ THANH TOÁN VÉ</button>
-            </div>
-        </div>
-    </main>
-
-    <main id="success-page" class="hidden p-8 max-w-sm mx-auto text-center glass border border-zinc-800 rounded-3xl my-16 shadow-2xl">
-        <span class="text-4xl text-emerald-400">✓</span>
-        <h2 class="text-xl font-black text-emerald-400 mt-2">GIAO DỊCH THÀNH CÔNG!</h2>
-        <p class="text-xs text-zinc-400 mt-1">Hệ thống đã lưu thông tin vé vào mục Lịch sử của bạn.</p>
-        <div class="bg-white p-3 rounded-xl my-4 inline-block"><img id="ticket-qr" class="w-40 h-40" src="" alt="QR"></div>
-        <p class="font-mono text-base text-yellow-400 font-black bg-zinc-900 py-2 rounded-lg" id="ticket-code"></p>
-        <button onclick="showPage('home-page')" class="mt-6 w-full bg-zinc-800 py-3 rounded-xl font-bold hover:bg-zinc-700 transition text-xs">QUAY LẠI TRANG CHỦ</button>
-    </main>
-
-    <script>
-        const socket = io();
-        let selectedShowtimeId = null, globalSeatsData = {}, currentTotal = 0;
-        let isLogined = false, currentTrailerUrl = "", currentUser = "";
-        
-        let purchasedTickets = []; 
-        window.moviesList = [];
-
-        const sampleMovies = [
-            {
-                _id: "m01",
-                title: "Lật Mặt 7: Một Điều Ước",
-                genre: "Tâm Lý, Gia Đình",
-                duration: "138 Phút",
-                director: "Lý Hải",
-                cast: "Thanh Hiền, Trương Minh Cường, Đinh Y Nhung, Quách Ngọc Tuyên",
-                description: "Câu chuyện gia đình đầy cảm động xoay quanh người mẹ già một mình nuôi dạy 5 người con khôn lớn. Khi bà gặp tai nạn, một chuỗi hiểu lầm và những góc khuất trong cuộc sống của từng người con bắt đầu lộ diện, đặt ra câu hỏi nhức nhối về chữ Hiếu.",
-                rating: "4.9/5 (1,250 votes)",
-                ratingStars: 5,
-                poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=60",
-                trailer: "https://www.youtube.com/embed/TcMBFSGVi1c"
-            },
-            {
-                _id: "m02",
-                title: "Avengers: Endgame",
-                genre: "Hành Động, Viễn Tưởng",
-                duration: "181 Phút",
-                director: "Anthony Russo, Joe Russo",
-                cast: "Robert Downey Jr., Chris Evans, Mark Ruffalo, Chris Hemsworth",
-                description: "Sau thảm họa búng tay của Thanos làm biến mất nửa số sinh vật trong vũ trụ, các siêu anh hùng còn sống sót phải tập hợp lại một lần cuối nhằm lật ngược tình thế, du hành thời gian để thu thập các viên đá vô cực cứu lấy toàn thế giới.",
-                rating: "5.0/5 (3,400 votes)",
-                ratingStars: 5,
-                poster: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=500&auto=format&fit=crop&q=60",
-                trailer: "https://www.youtube.com/embed/TcMBFSGVi1c"
-            }
-        ];
-
-       window.onload = async () => {
-    try {
-        const res = await fetch('/api/movies');
-        const movies = await res.json();
-
-        window.moviesList = (movies && movies.length > 0)
-            ? movies
-            : sampleMovies;
-
-    } catch (e) {
-        window.moviesList = sampleMovies;
-    }
-
-    renderGenres();
-    renderMoviesGrid();
-};
-
-        function renderMoviesGrid() {
-            document.getElementById('movie-grid').innerHTML = window.moviesList.map((m, index) => `
-                <div class="glass border border-zinc-800/60 rounded-3xl overflow-hidden p-5 flex gap-5 shadow-lg hover:border-zinc-700 transition">
-                    <img src="${m.poster}" class="w-24 h-36 object-cover rounded-xl shadow-md bg-zinc-800" alt="">
-                    <div class="flex flex-col justify-between flex-1">
-                        <div class="space-y-1">
-                            <span class="text-[9px] bg-red-600/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">${m.genre}</span>
-                            <h3 class="font-black text-base text-white leading-tight mt-1">${m.title}</h3>
-                            <p class="text-[11px] text-zinc-400">⏱️ ${m.duration} | ⭐ ${m.rating ? m.rating.split(' ')[0] : '5/5'}</p>
-                        </div>
-                        <button onclick="viewDetailByIndex(${index})" class="bg-zinc-100 text-zinc-900 font-bold py-2 px-5 rounded-lg text-xs hover:bg-red-600 hover:text-white transition w-fit mt-2">Xem Chi Tiết & Đặt Vé</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function viewDetailByIndex(index) {
-            const movie = window.moviesList[index];
-            if (movie) viewDetail(movie);
-        }
-
-        async function viewDetail(movie) {
-            document.getElementById('detail-img').src = movie.poster;
-            document.getElementById('detail-title').innerText = movie.title;
-            document.getElementById('detail-genre').innerText = movie.genre;
-            document.getElementById('detail-duration').innerText = movie.duration;
-            document.getElementById('detail-director').innerText = movie.director;
-            document.getElementById('detail-cast').innerText = movie.cast;
-            document.getElementById('detail-desc').innerText = movie.description;
-            document.getElementById('detail-rating').innerText = movie.rating;
-            
-            const starsContainer = document.getElementById('detail-stars');
-            starsContainer.innerHTML = '';
-            const starCount = movie.ratingStars || 5;
-            for(let i=0; i<5; i++) {
-                starsContainer.innerHTML += (i < starCount) ? '★' : '☆';
-            }
-
-            currentTrailerUrl = movie.trailer || "https://www.youtube.com/embed/TcMBFSGVi1c";
-            document.getElementById('btn-watch-trailer').onclick = () => openTrailerModal(currentTrailerUrl);
-            
-            const btnBooking = document.getElementById('btn-go-booking');
-            btnBooking.innerText = "ĐẶT GHẾ PHÒNG CHIẾU NGAY";
-            btnBooking.disabled = false;
-            btnBooking.className = "bg-red-600 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-red-700 transition shadow-lg text-sm flex-1";
-
-            try {
-                const res = await fetch('/api/showtimes/' + movie._id);
-                const st = await res.json();
-                if(st && st.length > 0) {
-                    btnBooking.onclick = () => checkLoginAndLoadSeats(st[0]._id, movie.title, st[0].time, st[0].room);
-                } else {
-                    btnBooking.onclick = () => checkLoginAndLoadSeats("st_" + movie._id, movie.title, "19:30", "Phòng số 2 (IMAX 3D)");
-                }
-            } catch (err) { 
-                btnBooking.onclick = () => checkLoginAndLoadSeats("st_backup", movie.title, "20:00", "Phòng chiếu VIP");
-            }
-            showPage('detail-page');
-        }
-
-        function checkLoginAndLoadSeats(stId, title, time, room) {
-            if(!isLogined) { 
-                alert("Hệ thống: Vui lòng đăng nhập Thành Viên trước khi chọn ghế!"); 
-                return openLoginModal(); 
-            }
-            document.getElementById('ticket-title').innerText = title;
-            document.getElementById('ticket-time').innerText = time;
-            document.getElementById('ticket-room').innerText = room;
-            selectedShowtimeId = stId;
-            
-            if(socket && socket.connected) {
-                socket.emit('join-showtime', selectedShowtimeId);
-            }
-            
-            const backupSeats = {};
-            const rows = ['A', 'B', 'C', 'D', 'E'];
-            rows.forEach(row => {
-                for (let i = 1; i <= 8; i++) {
-                    const id = `${row}${i}`;
-                    let type = 'thuong'; let price = 60000;
-                    if (row === 'D' || row === 'E') { type = 'vip'; price = 90000; }
-                    if (row === 'E' && (i === 7 || i === 8)) { type = 'doi'; price = 140000; }
-                    backupSeats[id] = { status: 'empty', type, price, holder: null };
-                }
-            });
-            renderSeatsMarkup(backupSeats);
-            showPage('booking-page');
-        }
-
-        function setSeatStyle(btn, seat) {
-            if(seat.status === 'booked') {
-                btn.className = 'p-2.5 text-[10px] font-bold rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-500 cursor-not-allowed border-zinc-700 font-mono';
-            } else if(seat.status === 'selected') {
-                btn.className = 'p-2.5 text-[10px] font-bold rounded-lg flex items-center justify-center bg-amber-500 text-zinc-950 border-amber-400 font-mono scale-95 shadow-md';
-            } else {
-                if(seat.type === 'vip') {
-                    btn.className = 'p-2.5 text-[10px] font-bold rounded-lg flex items-center justify-center bg-purple-950/40 text-purple-300 border-purple-800/60 hover:bg-purple-900 transition font-mono';
-                } else if(seat.type === 'doi') {
-                    btn.className = 'p-2.5 text-[10px] font-bold rounded-lg flex items-center justify-center bg-pink-950/40 text-pink-300 border-pink-800/60 hover:bg-pink-900 transition font-mono';
-                } else {
-                    btn.className = 'p-2.5 text-[10px] font-bold rounded-lg flex items-center justify-center bg-zinc-900/60 text-zinc-300 border-zinc-800 hover:bg-zinc-800 transition font-mono';
-                }
-            }
-        }
-
-        function renderSeatsMarkup(seats) {
-            globalSeatsData = seats;
-            const container = document.getElementById('seat-grid'); 
-            container.innerHTML = '';
-            for(const id in seats) {
-                const btn = document.createElement('button'); 
-                btn.id = id; btn.innerText = id;
-                setSeatStyle(btn, seats[id]);
-                btn.onclick = () => {
-                    const seat = globalSeatsData[id];
-                    if(seat.status === 'booked') return;
-                    if(seat.status === 'empty') {
-                        seat.status = 'selected'; seat.holder = socket.id;
-                    } else if(seat.status === 'selected' && seat.holder === socket.id) {
-                        seat.status = 'empty'; seat.holder = null;
-                    }
-                    setSeatStyle(btn, seat);
-                    updateInvoice();
-                    if(socket && socket.connected) {
-                        socket.emit('toggle-seat', { showtimeId: selectedShowtimeId, seatId: id });
-                    }
-                };
-                container.appendChild(btn);
-            }
-            updateInvoice();
-        }
-
-        function updateInvoice() {
-            let mySeats = []; currentTotal = 0;
-            for(let id in globalSeatsData) {
-                if(globalSeatsData[id].status === 'selected' && globalSeatsData[id].holder === socket.id) {
-                    mySeats.push(id); currentTotal += globalSeatsData[id].price;
-                }
-            }
-            if(mySeats.length > 0) {
-                document.getElementById('ticket-seats').innerText = mySeats.join(', ');
-                document.getElementById('ticket-total').innerText = currentTotal.toLocaleString('vi-VN');
-                document.getElementById('btn-pay').disabled = false;
-                document.getElementById('qr-container').classList.remove('hidden');
-                document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CGV_Pay_${currentTotal}`;
-            } else {
-                document.getElementById('ticket-seats').innerText = '-'; document.getElementById('ticket-total').innerText = '0';
-                document.getElementById('btn-pay').disabled = true; document.getElementById('qr-container').classList.add('hidden');
-            }
-        }
-
-        function payTicket() { 
-            if(socket && socket.connected) {
-                socket.emit('confirm-booking', { showtimeId: selectedShowtimeId, totalAmount: currentTotal }); 
-            }
-            
-            const finalCode = 'CGV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            let selectedSeatsText = document.getElementById('ticket-seats').innerText;
-            
-            purchasedTickets.push({
-                code: finalCode,
-                title: document.getElementById('ticket-title').innerText,
-                time: document.getElementById('ticket-time').innerText,
-                room: document.getElementById('ticket-room').innerText,
-                seats: selectedSeatsText,
-                total: currentTotal.toLocaleString('vi-VN') + 'đ'
-            });
-            
-            document.getElementById('ticket-count').innerText = purchasedTickets.length;
-
-            setTimeout(() => {
-                showPage('success-page');
-                document.getElementById('ticket-code').innerText = "MÃ VÉ: " + finalCode;
-                document.getElementById('ticket-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${finalCode}`;
-            }, 500);
-        }
-
-      function doLogin(usernameInputId) {
-    const username = document.getElementById(usernameInputId).value.trim();
-    const password = document.getElementById('login-pass').value.trim();
-
-    if(!username) return alert("Vui lòng nhập tài khoản!");
-    if(!password) return alert("Vui lòng nhập mật khẩu!");
-
-    isLogined = true;
-    currentUser = username;
-
-    document.getElementById('user-info').innerHTML =
-        `👋 Chào, <span class="text-red-400 font-black">${currentUser}</span>`;
-
-    document.getElementById('btn-login-nav').classList.add('hidden');
-
-    closeLoginModal();
-    alert("Đăng nhập thành công!");
+function loadGenresToDropdown(){
+    let genresSet = new Set();
+    allMovies.forEach(m => { m.genre.split(/[,/]/).forEach(g => { let t = g.trim(); if(t) genresSet.add(t); }); });
+    let sorted = ['all', ...Array.from(genresSet).sort()];
+    let select = document.getElementById('genre-select');
+    if(select) select.innerHTML = sorted.map(g => `<option value="${g}">${g === 'all' ? '📽️ Tất cả thể loại' : '🎬 ' + g}</option>`).join('');
 }
-
-        function switchAuthTab(tab) {
-            if(tab === 'login') {
-                document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('form-register').classList.add('hidden');
-                document.getElementById('tab-login').className = "text-red-500 border-b-2 border-red-500 pb-3 -mb-[14px] transition";
-                document.getElementById('tab-register').className = "text-zinc-500 hover:text-zinc-300 pb-3 -mb-[14px] transition";
-            } else {
-                document.getElementById('form-login').classList.add('hidden');
-                document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('tab-login').className = "text-zinc-500 hover:text-zinc-300 pb-3 -mb-[14px] transition";
-                document.getElementById('tab-register').className = "text-amber-500 border-b-2 border-amber-500 pb-3 -mb-[14px] transition";
-            }
-        }
-
-        function openMyTickets() {
-            const container = document.getElementById('my-tickets-list');
-            if (purchasedTickets.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 py-4 text-center font-medium">Bạn chưa thực hiện giao dịch đặt vé nào hôm nay.</p>`;
-            } else {
-                container.innerHTML = purchasedTickets.map(tk => `
-                    <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl space-y-2">
-                        <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-                            <span class="text-xs font-black text-yellow-400 font-mono">${tk.code}</span>
-                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">ĐÃ THANH TOÁN</span>
-                        </div>
-                        <h4 class="font-black text-sm text-white uppercase">${tk.title}</h4>
-                        <div class="grid grid-cols-2 gap-2 text-xs text-zinc-400 font-medium">
-                            <p>🕒 Suất: <span class="text-white font-bold">${tk.time}</span></p>
-                            <p>🚪 Rạp: <span class="text-white font-bold">${tk.room}</span></p>
-                            <p>💺 Ghế: <span class="text-amber-500 font-black">${tk.seats}</span></p>
-                            <p>💰 Tổng: <span class="text-emerald-400 font-bold">${tk.total}</span></p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('tickets-modal').classList.remove('hidden');
-        }
-
-        function closeMyTickets() { document.getElementById('tickets-modal').classList.add('hidden'); }
-        function openTrailerModal(url) {
-            document.getElementById('trailer-video').src = url + "?autoplay=1";
-            document.getElementById('trailer-modal').classList.remove('hidden');
-        }
-        function closeTrailerModal() {
-            document.getElementById('trailer-video').src = "";
-            document.getElementById('trailer-modal').classList.add('hidden');
-        }
-        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
-        function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); }
-        
-        function showPage(pageId) {
-            ['home-page', 'detail-page', 'booking-page', 'success-page'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById(pageId);
-            if(target) target.classList.remove('hidden');
-        }
-        
-        function scrollToSection(id) {
-            const target = document.getElementById(id);
-            if(target) target.scrollIntoView({ behavior: 'smooth' });
-        }
-        // Hàm xử lý khi bấm Google / Facebook
-function loginWithApp(appName) {
-    isLogined = true;
-    currentUser = appName === 'Google' ? 'user.google@gmail.com' : 'user.facebook';
-    
-    // Đổi hiển thị trên thanh điều hướng (nav) của bạn
-    const userNav = document.getElementById('user-info');
-    if(userNav) {
-        userNav.innerHTML = `👋 Chào, <span class="text-red-400 font-black">${currentUser}</span>`;
-    }
-    const btnLoginNav = document.getElementById('btn-login-nav');
-    if(btnLoginNav) btnLoginNav.classList.add('hidden');
-    
-    closeLoginModal();
-    alert(`Đăng nhập thành công qua ${appName}!`);
-}
-
-// Hàm xử lý khi bấm Đăng Ký
-let users = [];
-
-function doRegister() {
-    const name = document.getElementById('reg-name').value.trim();
-    const username = document.getElementById('reg-user').value.trim();
-    const password = document.getElementById('reg-pass').value.trim();
-
-    if (!name || !username || !password) {
-        return alert("Vui lòng nhập đầy đủ thông tin!");
-    }
-
-    const existed = users.find(u => u.username === username);
-    if (existed) {
-        return alert("Tài khoản đã tồn tại!");
-    }
-
-    users.push({
-        name,
-        username,
-        password
+function filterMovies(){
+    let search = document.getElementById('global-search').value.toLowerCase();
+    let genre = document.getElementById('genre-select').value;
+    let sort = document.getElementById('sort-selector').value;
+    let temp = allMovies.filter(m => {
+        if(genre !== 'all'){ let movieGenres = m.genre.split(/[,/]/).map(g=>g.trim()); if(!movieGenres.includes(genre)) return false; }
+        if(search) return m.title.toLowerCase().includes(search) || m.genre.toLowerCase().includes(search) || (m.director && m.director.toLowerCase().includes(search)) || (m.cast && m.cast.toLowerCase().includes(search));
+        return true;
     });
-
-    alert("Đăng ký thành công! Giờ đăng nhập nhé 😎");
-
-    switchAuthTab('login');
-
-    document.getElementById('login-user').value = username;
-    document.getElementById('login-pass').value = "";
+    if(sort === 'az') temp.sort((a,b)=>a.title.localeCompare(b.title));
+    else if(sort === 'za') temp.sort((a,b)=>b.title.localeCompare(a.title));
+    else if(sort === 'rating') temp.sort((a,b)=>parseFloat(b.rating)-parseFloat(a.rating));
+    filteredMovies = temp;
+    visibleCount = 6;
+    renderMovieGrid();
 }
-function renderGenres() {
-    const genres = ['Tất cả', ...new Set(window.moviesList.map(m => m.genre))];
+function renderMovieGrid(){
+    let movies = filteredMovies.slice(0, visibleCount);
+    document.getElementById('movie-grid').innerHTML = movies.map(m => `<div class="glass-premium rounded-2xl overflow-hidden border border-white/10 hover:border-red-500/50 transition"><img src="${m.poster}" class="h-56 w-full object-cover"><div class="p-4"><h3 class="font-black text-lg">${m.title}</h3><p class="text-xs text-red-400">${m.genre.split(',')[0]}</p><div class="flex justify-between items-center mt-3"><span class="text-amber-400">★ ${m.rating}</span><button onclick="viewMovieDetail('${m._id}')" class="bg-red-600 text-xs px-4 py-2 rounded-xl">Đặt vé</button></div></div></div>`).join('');
+    document.getElementById('movie-count-badge').innerHTML = `🎬 ${filteredMovies.length} phim`;
+    document.getElementById('load-more-btn').classList.toggle('hidden', filteredMovies.length <= visibleCount);
+}
+function increaseLoadMore(){ visibleCount += 6; renderMovieGrid(); }
 
-    document.getElementById('genre-list').innerHTML = genres.map(g => `
-        <button onclick="filterGenre('${g}')"
-            class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-red-600 text-xs font-bold transition">
-            ${g}
-        </button>
-    `).join('');
+function viewMovieDetail(id){
+    let movie = allMovies.find(m=>m._id===id);
+    currentMovieDetail = movie;
+    document.getElementById('detail-poster').src = movie.poster;
+    document.getElementById('detail-title').innerText = movie.title;
+    document.getElementById('detail-genre').innerText = movie.genre;
+    document.getElementById('detail-duration').innerText = movie.duration;
+    document.getElementById('detail-director').innerText = movie.director;
+    document.getElementById('detail-cast').innerText = movie.cast;
+    document.getElementById('detail-desc').innerText = movie.description;
+    let stars = ''; for(let i=0;i<movie.ratingStars;i++) stars+='★'; for(let i=movie.ratingStars;i<5;i++) stars+='☆';
+    document.getElementById('detail-stars').innerHTML = stars;
+    let today = new Date().toISOString().split('T')[0];
+    document.getElementById('show-date').value = today;
+    document.getElementById('trailer-btn').onclick = ()=>{ document.getElementById('trailer-frame').src = movie.trailer+"?autoplay=1"; document.getElementById('trailer-modal').classList.remove('hidden'); };
+    document.getElementById('booking-nav-btn').onclick = ()=>{ if(!loggedIn){ toast("Vui lòng đăng nhập!",'error'); openLoginModal(); } else { initBookingSeats(movie); } };
+    showPage('detail-page');
+}
+function goBackToDetail(){ if(currentMovieDetail) viewMovieDetail(currentMovieDetail._id); else showHomePage(); }
+
+function initBookingSeats(movie){
+    document.getElementById('booking-movie-title').innerText = movie.title;
+    document.getElementById('booking-showtime').innerText = document.getElementById('showtime-hour').value + " | " + document.getElementById('cinema-branch').value;
+    let rows=['A','B','C','D','E']; let seatMap = new Map(); let html = '';
+    for(let r of rows){ for(let i=1;i<=8;i++){ let id=r+i; let type='normal', price=65000; if(r==='D'){type='vip';price=95000;} if(r==='E'){type='double';price=130000;} seatMap.set(id,{price,type,status:'empty'}); html+=`<button data-seat="${id}" class="text-[11px] font-bold p-2 rounded-lg border ${type==='vip'?'seat-vip':type==='double'?'seat-double':'seat-empty'}">${id}</button>`; }}
+    document.getElementById('seat-layout').innerHTML = html;
+    selectedSeatsMap.clear(); currentBookingSeats = [];
+    document.querySelectorAll('[data-seat]').forEach(btn=>{ btn.onclick=()=>{ let sid=btn.dataset.seat; let seat=seatMap.get(sid); if(seat.status==='booked') return; if(selectedSeatsMap.has(sid)){ selectedSeatsMap.delete(sid); btn.classList.remove('seat-selected'); btn.classList.add(seat.type==='vip'?'seat-vip':seat.type==='double'?'seat-double':'seat-empty'); }else{ selectedSeatsMap.set(sid,seat); btn.classList.remove('seat-empty','seat-vip','seat-double'); btn.classList.add('seat-selected'); } updateBookingUI(); }; });
+    function updateBookingUI(){ let total=0, names=[]; for(let [id,obj] of selectedSeatsMap.entries()){ total+=obj.price; names.push(id); } document.getElementById('selected-seats-label').innerText=names.join(', ')||'-'; document.getElementById('total-price-label').innerHTML=total.toLocaleString()+'đ'; if(names.length){ document.getElementById('confirm-pay-btn').disabled=false; document.getElementById('qr-preview').classList.remove('hidden'); document.getElementById('qr-code-preview').src=`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=CGV_${total}_${Date.now()}`; }else{ document.getElementById('confirm-pay-btn').disabled=true; document.getElementById('qr-preview').classList.add('hidden'); } currentBookingSeats = names; }
+    updateBookingUI();
+    showPage('booking-page');
+}
+async function processPayment(){
+    if(!loggedIn) return toast("Cần đăng nhập!",'error');
+    if(currentBookingSeats.length===0) return toast("Chưa chọn ghế",'info');
+    let code = "CGV"+Math.random().toString(36).substring(2,10).toUpperCase();
+    let total = [...selectedSeatsMap.values()].reduce((s,o)=>s+o.price,0);
+    let ticket = { code, title: currentMovieDetail.title, seats: currentBookingSeats.join(','), total: total.toLocaleString()+'đ', time: document.getElementById('showtime-hour').value, room: document.getElementById('cinema-branch').value };
+    userBookings.push(ticket);
+    localStorage.setItem('cgv_bookings', JSON.stringify(userBookings));
+    document.getElementById('final-ticket-code').innerText = code;
+    document.getElementById('final-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${code}`;
+    updateTicketBadge();
+    toast("Đặt vé thành công!",'success');
+    showPage('success-page');
 }
 
-function filterGenre(genre) {
-    let filteredMovies = window.moviesList;
-
-    if (genre !== 'Tất cả') {
-        filteredMovies = window.moviesList.filter(m =>
-            m.genre.toLowerCase().includes(genre.toLowerCase())
-        );
-    }
-
-    document.getElementById('movie-grid').innerHTML = filteredMovies.map((m) => `
-        <div class="glass border border-zinc-800/60 rounded-3xl overflow-hidden p-5 flex gap-5 shadow-lg hover:border-zinc-700 transition">
-            <img src="${m.poster}" class="w-24 h-36 object-cover rounded-xl">
-            <div class="flex flex-col justify-between flex-1">
-                <div>
-                    <h3 class="font-black text-white">${m.title}</h3>
-                    <p class="text-xs text-zinc-400">${m.duration}</p>
-                </div>
-                <button onclick='viewDetail(${JSON.stringify(m)})'
-                    class="mt-2 bg-red-600 px-4 py-2 rounded-lg text-xs hover:bg-red-700 transition">
-                    Xem
-                </button>
-            </div>
-        </div>
-    `).join('');
+function openLoginModal(){ document.getElementById('login-modal').classList.remove('hidden'); }
+function closeLoginModal(){ document.getElementById('login-modal').classList.add('hidden'); }
+function switchAuth(type){
+    if(type==='login'){ document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden'); document.getElementById('login-tab-btn').classList.add('border-b-2','border-red-500','text-red-500'); document.getElementById('register-tab-btn').classList.remove('border-b-2','border-red-500','text-red-500'); }
+    else{ document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden'); document.getElementById('register-tab-btn').classList.add('border-b-2','border-red-500','text-red-500'); document.getElementById('login-tab-btn').classList.remove('border-b-2','border-red-500','text-red-500'); }
 }
+function submitLogin(){
+    let u = document.getElementById('login-username').value.trim();
+    let p = document.getElementById('login-password').value.trim();
+    if(!u || !p){ toast("Nhập tài khoản/mật khẩu",'error'); return; }
+    let users = JSON.parse(localStorage.getItem('cgv_users') || '[]');
+    if(users.length===0 && u==='demo' && p==='123'){ users.push({name:"Demo", username:"demo", password:"123"}); localStorage.setItem('cgv_users', JSON.stringify(users)); }
+    let found = users.find(user=>user.username===u && user.password===p);
+    if(!found){ toast("Sai tài khoản hoặc mật khẩu!",'error'); return; }
+    loggedIn=true; currentUsername=u;
+    localStorage.setItem('cgv_user', JSON.stringify({username:u}));
+    document.getElementById('login-nav-btn').classList.add('hidden');
+    document.getElementById('user-greeting').classList.remove('hidden');
+    document.getElementById('username-display').innerHTML = `👤 ${u}`;
+    closeLoginModal();
+    toast(`Chào ${u}!`,'success');
+}
+function submitRegister(){
+    let name = document.getElementById('reg-fullname').value.trim();
+    let user = document.getElementById('reg-username').value.trim();
+    let pass = document.getElementById('reg-password').value.trim();
+    if(!name || !user || !pass){ toast("Nhập đầy đủ thông tin!",'error'); return; }
+    let users = JSON.parse(localStorage.getItem('cgv_users') || '[]');
+    if(users.find(u=>u.username===user)){ toast("Tài khoản đã tồn tại!",'error'); return; }
+    users.push({name, username:user, password:pass});
+    localStorage.setItem('cgv_users', JSON.stringify(users));
+    toast("Đăng ký thành công! Đăng nhập ngay.",'success');
+    switchAuth('login');
+    document.getElementById('login-username').value = user;
+    document.getElementById('login-password').value = "";
+}
+function logoutUser(){ loggedIn=false; currentUsername=''; localStorage.removeItem('cgv_user'); document.getElementById('login-nav-btn').classList.remove('hidden'); document.getElementById('user-greeting').classList.add('hidden'); toast("Đã đăng xuất",'info'); }
+function openMyTicketModal(){
+    let container = document.getElementById('ticket-list-container');
+    if(userBookings.length===0) container.innerHTML = '<p class="text-center text-zinc-500">Chưa có vé nào.</p>';
+    else container.innerHTML = userBookings.map(t=>`<div class="bg-zinc-900 p-4 rounded-xl"><div class="flex justify-between"><span class="font-mono text-yellow-400">${t.code}</span><span class="text-emerald-400">${t.total}</span></div><p class="font-bold">${t.title}</p><p>⏰ ${t.time} | 🪑 ${t.seats} | 🏢 ${t.room}</p></div>`).join('');
+    document.getElementById('tickets-modal').classList.remove('hidden');
+}
+function closeTicketsModal(){ document.getElementById('tickets-modal').classList.add('hidden'); }
+function closeTrailer(){ document.getElementById('trailer-frame').src=''; document.getElementById('trailer-modal').classList.add('hidden'); }
+function updateTicketBadge(){ document.getElementById('badge-ticket-count').innerText = userBookings.length; }
+function toggleUserDropdown(){ document.getElementById('user-dropdown').classList.toggle('hidden'); }
+document.addEventListener('click',(e)=>{ if(!e.target.closest('#user-area')) document.getElementById('user-dropdown')?.classList.add('hidden'); });
+window.onload=()=>{
+    let stored = localStorage.getItem('cgv_user');
+    if(stored){ let data=JSON.parse(stored); loggedIn=true; currentUsername=data.username; document.getElementById('login-nav-btn').classList.add('hidden'); document.getElementById('user-greeting').classList.remove('hidden'); document.getElementById('username-display').innerHTML=`👤 ${data.username}`; }
+    let storedBookings = localStorage.getItem('cgv_bookings');
+    if(storedBookings) userBookings = JSON.parse(storedBookings);
+    updateTicketBadge();
+    loadGenresToDropdown();
+    renderMovieGrid();
+};
+document.addEventListener('keydown',(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==='k'){ e.preventDefault(); document.getElementById('global-search').focus(); } });
+</script>
 
-    </script>
-    <footer class="mt-20 border-t border-zinc-800 bg-zinc-950 py-12 px-8">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
-
-        <div>
-            <h3 class="text-lg font-black text-red-500 mb-4">CGV CINEMAS</h3>
-            <p class="text-sm text-zinc-400 leading-relaxed">
-                Hệ thống đặt vé xem phim trực tuyến hiện đại, hỗ trợ chọn ghế realtime,
-                thanh toán nhanh chóng, giao diện premium chuẩn rạp chiếu cao cấp.
-            </p>
-        </div>
-
-        <div>
-            <h4 class="text-sm font-bold text-white mb-3">Dịch vụ</h4>
-            <ul class="space-y-2 text-sm text-zinc-400">
-                <li>🎬 Đặt vé online</li>
-                <li>🍿 Combo bắp nước</li>
-                <li>💺 Chọn ghế trực tiếp</li>
-                <li>🎟️ Lưu vé điện tử</li>
-            </ul>
-        </div>
-
-        <div>
-            <h4 class="text-sm font-bold text-white mb-3">Hỗ trợ khách hàng</h4>
-            <ul class="space-y-2 text-sm text-zinc-400">
-                <li>📞 Hotline: 1900 6017</li>
-                <li>📧 support@cgvcinema.vn</li>
-                <li>🕒 08:00 - 23:00</li>
-            </ul>
-        </div>
-
-        <div>
-            <h4 class="text-sm font-bold text-white mb-3">Về chúng tôi</h4>
-            <p class="text-sm text-zinc-400 leading-relaxed">
-                Mang đến trải nghiệm điện ảnh đỉnh cao với công nghệ IMAX, 4DX, 
-                Dolby Atmos cùng hàng loạt bom tấn hấp dẫn mỗi ngày.
-            </p>
-        </div>
-
+<!-- FOOTER LIÊN HỆ -->
+<footer class="border-t border-zinc-800 bg-zinc-950/50 py-8 px-5 mt-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div><h3 class="text-lg font-black bg-gradient-to-r from-red-500 to-amber-400 bg-clip-text text-transparent">CGV CINEMAS</h3><p class="text-xs text-zinc-500 mt-2">Hệ thống rạp chiếu phim hiện đại hàng đầu.</p></div>
+        <div><h4 class="text-sm font-bold text-white mb-2">📞 LIÊN HỆ</h4><ul class="text-xs text-zinc-400 space-y-1"><li>Hotline: 1900 6017</li><li>Email: support@cgv.vn</li></ul></div>
+        <div><h4 class="text-sm font-bold text-white mb-2">📍 ĐỊA CHỈ</h4><ul class="text-xs text-zinc-400 space-y-1"><li>TP.HCM: 19 Lê Thánh Tôn</li><li>Hà Nội: 22 Hàng Bài</li></ul></div>
+        <div><h4 class="text-sm font-bold text-white mb-2">📱 MẠNG XÃ HỘI</h4><div class="flex gap-3 text-xl"><a href="#" onclick="toast('Facebook CGV','info')">📘</a><a href="#" onclick="toast('Instagram @cgv','info')">📷</a></div></div>
     </div>
-
-    <div class="border-t border-zinc-800 mt-8 pt-6 text-center">
-        <p class="text-xs text-zinc-500">
-            © 2026 CGV CINEMAS ULTIMATE | Thiết kế bởi Kha Lê
-        </p>
-    </div>
+    <div class="text-center text-[10px] text-zinc-600 mt-6 pt-4 border-t border-zinc-800">© 2026 CGV CINEMAS</div>
 </footer>
+
 </body>
 </html>

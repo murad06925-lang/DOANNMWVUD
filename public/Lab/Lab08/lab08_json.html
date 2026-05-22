@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab8_Bai3_json</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: aliceblue;
+            margin-top: 20px;   
+            padding: 10px;
+            background-color: rgb(238, 18, 128);
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            border-bottom: 1px solid;
+        }
+        #userinfo {
+            color: black;
+            background-color: rgb(195, 14, 240);
+            padding: 20px;
+            text-align: left;
+        }
+        #btn_submit_hien {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: rgb(116, 10, 255);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #btn_submit_an {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: rgb(8, 241, 59);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>THÔNG TIN USER</h2>
+    <div id="userinfo"></div>
+    <button id="btn_submit_hien">Hiện thông tin</button>
+    <button id="btn_submit_an">Chưa Ẩn</button>
+
+    <script>
+        // tạo dữ liệu user
+        const jsonString = `{
+            "ten": "I am sinbad",
+            "namsinh": "2000",
+            "mail": "sinbad2121@gmail.com",
+            "diachi": {
+                "thanhpho": "London",
+                "phuong": "đảo guru",
+                "sonha": "38/6B khu phố 6 đường 3"
+            }
+        }`;
+        // parse 
+        const userData = JSON.parse(jsonString);
+
+        //lấy button
+        const btn_submit_hien = document.getElementById("btn_submit_hien");
+
+        //bắt sự kiện click
+        btn_submit_hien.addEventListener("click", function() {
+            hienThiThongTin(userData); // gọi hàm -> truyền đối tượng dữ liệu vào hàm
+        });
+
+        // hàm hiển thị thông tin
+        function hienThiThongTin(data) {
+            var userDataElement = document.getElementById("userinfo");
+            userDataElement.innerHTML = `
+                <p>Họ và tên: ${data.ten}</p>
+                <p>Năm sinh: ${data.namsinh}</p>
+                <p>Email: ${data.mail}</p>
+                <p>Địa chỉ: ${data.diachi.sonha}, ${data.diachi.phuong}, ${data.diachi.thanhpho}</p>
+            `;
+        }
+        // Lấy button ẩn
+const btn_submit_an = document.getElementById("btn_submit_an");
+
+// Bắt sự kiện click cho nút ẩn
+btn_submit_an.addEventListener("click", function() {
+    var userDataElement = document.getElementById("userinfo");
+    // Xóa nội dung bên trong div
+    userDataElement.innerHTML = ""; 
+});
+        </script>
+</body>
+</html>

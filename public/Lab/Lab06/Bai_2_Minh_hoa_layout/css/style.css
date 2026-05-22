@@ -1,0 +1,145 @@
+/* ==========================================
+   1. ĐỊNH DẠNG CHO TRANG LAYOUT (Màn hình dưới 600px)
+   - GIỮ NGUYÊN KHÔNG SỬA -
+   ========================================== */
+body {
+    font-size: 20px; 
+    margin: 0;
+    padding: 0;
+}
+
+.layout-wrapper {
+    display: flex;
+    flex-flow: row wrap;
+    font-weight: bold;
+    text-align: center;
+}
+
+.layout-wrapper > * {
+    padding: 10px;
+    box-sizing: border-box;
+    flex: 1 100%; 
+}
+
+.main img {
+    max-width: 100%;
+    height: auto;
+}
+
+.header-flex-2 { background: tomato; order: 1; }
+.main          { background: deepskyblue; order: 2; text-align: left; }
+.aside-1       { background: gold; order: 3; }
+.aside-2       { background: hotpink; order: 4; }
+.footer-flex-2 { background: lightgreen; order: 5; }
+
+
+/* ==========================================
+   2. ĐỊNH DẠNG CHO TRANG MENU (ÉP PHẢI CHẠY ĐÚNG VỚI HTML CŨ)
+   ========================================== */
+/* Cấu trúc khối cha */
+div#mymenu.menu {
+    display: flex !important;
+    flex-direction: column !important; 
+    background-color: #333333 !important; 
+    font-family: Arial, sans-serif !important;
+    width: 100% !important;
+    position: relative !important; 
+}
+
+/* ĐỊNH DẠNG GỐC CHO TẤT CẢ THẺ A: Ép chữ luôn trắng, không gạch chân dù đóng hay mở */
+div#mymenu.menu a {
+    color: white !important; 
+    text-decoration: none !important; 
+    padding: 15px 20px !important;
+    font-weight: normal !important;
+    text-align: left !important; 
+    box-sizing: border-box !important;
+}
+
+/* ------------------------------------------
+   BẮT BUỘC ẨN CÁC MỤC KHI ĐÓNG MENU
+   Sử dụng bộ chọn thuộc tính [href] để tăng độ ưu tiên tối đa, đè bẹp CSS mặc định của trình duyệt
+   ------------------------------------------ */
+div#mymenu.menu a[href="#News"], 
+div#mymenu.menu a[href="#Contact"], 
+div#mymenu.menu a[href="#About"] {
+    display: none !important; /* Mặc định ẩn đi khi đóng menu */
+    border-bottom: 1px solid #444 !important; /* Tạo đường gạch ngăn cách */
+}
+
+/* Hiệu ứng hover đổi màu nền xám cho các mục */
+div#mymenu.menu a[href="#News"]:hover, 
+div#mymenu.menu a[href="#Contact"]:hover, 
+div#mymenu.menu a[href="#About"]:hover {
+    background-color: #444444 !important;
+}
+
+/* ------------------------------------------
+   HIỂN THỊ NÚT HOME VÀ ICON BA GẠCH
+   ------------------------------------------ */
+/* Thanh màu xanh của nút Home */
+div#mymenu.menu a.active {
+    display: block !important;
+    background-color: #5dade2 !important; 
+    color: black !important; /* Chữ Home màu đen */
+}
+
+/* Nút ba gạch găm chặt vào góc phải thanh màu xanh */
+div#mymenu.menu a.icon {
+    display: flex !important; 
+    background-color: #5dade2 !important; 
+    color: white !important; 
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    height: 53px !important; /* Chiều cao bằng ô chữ Home */
+    align-items: center !important;     
+    justify-content: center !important; 
+    padding: 0 20px !important;         
+}
+
+/* ------------------------------------------
+   KHI BẤM ICON LẦN 1 (MỞ MENU):
+   Khi có class .responsive, lập tức ép hiển thị lại cả 3 mục News, Contact, About
+   ------------------------------------------ */
+div#mymenu.menu.responsive a[href="#News"], 
+div#mymenu.menu.responsive a[href="#Contact"], 
+div#mymenu.menu.responsive a[href="#About"] {
+    display: block !important; /* Hiện ra dạng danh sách dọc */
+}
+
+
+/* ==========================================
+   3. CẤU TRÚC MÀN HÌNH LỚN CHO TRANG LAYOUT (>= 1200px)
+   - GIỮ NGUYÊN KHÔNG SỬA -
+   ========================================== */
+@media screen and (min-width: 1200px) {
+    body {
+        font-size: 16px; 
+    }
+
+    .header-flex-2 {
+        flex: 1 100%;
+        order: 1;
+    }
+
+    .footer-flex-2 {
+        flex: 1 100%;
+        order: 5;
+    }
+
+    .aside-1 {
+        flex: 1 20%;  
+        order: 2;     
+    }
+
+    .main {
+        flex: 1 60%;  
+        order: 3;     
+    }
+
+    .aside-2 {
+        flex: 1 20%;  
+        order: 4;     
+    }
+}

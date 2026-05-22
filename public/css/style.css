@@ -39,7 +39,7 @@ header {
 /* Bố cục danh sách phim */
 .movie-grid {
     display: grid;
-    grid-template-cols: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
 }
 
@@ -47,19 +47,25 @@ header {
     background: var(--bg-card);
     border-radius: 1rem;
     overflow: hidden;
-    display: flex;
-    padding: 1.25rem;
-    gap: 1rem;
     border: 1px solid #2e2a24;
+    transition: 0.25s;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
 }
 
 .movie-card img {
-    width: 90px;
-    height: 130px;
+    width: 100%;
+    height: 320px;
     object-fit: cover;
-    border-radius: 0.5rem;
+    display: block;
 }
-
+.movie-info {
+    padding: 1rem;
+}
 /* Nút bấm chung */
 .btn {
     background: var(--primary);
@@ -85,13 +91,13 @@ header {
 /* Bố cục trang đặt vé */
 .booking-layout {
     display: grid;
-    grid-template-cols: 1.8fr 1.2fr;
-    gap: 2rem;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));  
+      gap: 2rem;
 }
 
 @media (max-width: 768px) {
     .booking-layout {
-        grid-template-cols: 1fr;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -108,7 +114,7 @@ header {
 /* Sơ đồ ghế ngồi */
 .seat-grid {
     display: grid;
-    grid-template-cols: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 0.5rem;
     max-width: 400px;
     margin: 0 auto;
@@ -181,4 +187,34 @@ header {
 /* Ẩn các trang khi chưa dùng đến */
 .hidden {
     display: none !important;
+}
+.logo-text {
+    background: linear-gradient(90deg, #ff0000, #ff7a18, #ffffff, #ff0000);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    text-shadow: 0 0 12px rgba(255, 0, 0, 0.35);
+
+    animation: logoMove 3.5s ease-in-out infinite;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-block;
+    will-change: transform;
+}
+
+.logo-text:hover {
+    transform: scale(1.15);
+    letter-spacing: 2px;
+    filter: drop-shadow(0 0 12px red);
+    text-shadow:
+        0 0 15px rgba(255, 0, 0, 0.9),
+        0 0 30px rgba(255, 80, 0, 0.6),
+        0 0 50px rgba(255, 120, 0, 0.4);
+}
+
+@keyframes logoMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }

@@ -1,0 +1,300 @@
+/* ==========================================================================
+   DANH CHO GIAO DIEN MOBILE & TABLET (DƯỚI 992PX)
+   ========================================================================== */
+@media only screen and (max-width: 991px) {
+    
+    /* 1. Ẩn toàn bộ thanh header thông thường của PC */
+    .header__top,
+    .header__menu,
+    .header__cart {
+        display: none !important;
+    }
+
+    /* 2. Cấu hình phần Header hiển thị trên Mobile */
+    .header {
+        padding: 15px 0 !important;
+        
+        .row {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+    }
+
+    /* Nút 3 gạch mở menu mobile */
+    .humberger__open {
+        display: block !important;
+        font-size: 22px !important;
+        color: #1c1c1c !important;
+        cursor: pointer !important;
+        float: right !important;
+        line-height: 1 !important;
+    }
+
+    /* 3. Lớp nền đen mờ bao phủ bên phải khi mở Menu */
+    .humberger__menu__overlay {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        z-index: 998 !important;
+        visibility: hidden !important;
+        transition: all 0.3s !important;
+        opacity: 0 !important;
+
+        &.active {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    }
+
+    /* 4. Khung nội dung Menu trượt từ trái qua */
+    .humberger__menu__wrapper {
+        position: fixed !important;
+        left: -300px !important; 
+        top: 0 !important;
+        width: 300px !important;
+        height: 100% !important;
+        background: #ffffff !important;
+        padding: 30px !important;
+        z-index: 999 !important;
+        overflow-y: auto !important;
+        transition: all 0.3s !important;
+        box-shadow: 10px 0 20px rgba(0, 0, 0, 0.05) !important;
+
+        &.show__humberger__menu__wrapper {
+            left: 0 !important; 
+        }
+    }
+
+    /* 5. FIX TRIỆT ĐỂ KHU VỰC GIỎ HÀNG: XÓA CHẤM TRÒN ĐEN, ĐƯA LÊN MỘT HÀNG NGANG */
+   // TẬP TRUNG SỬA ĐÚNG KHU VỰC GIỎ HÀNG BỊ LỖI
+.humberger__menu__cart {
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+    display: flex !important;          /* Ép icon và text giá tiền nằm cùng một hàng ngang */
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+
+    ul {
+        display: flex !important;       /* Ép icon tim và icon giỏ hàng nằm ngang hàng */
+        align-items: center !important;
+        gap: 15px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;    /* Khử dấu chấm tròn mặc định của thẻ ul */
+
+        li {
+            list-style: none !important; /* Khử dấu chấm tròn trên thẻ li */
+            display: inline-block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: relative !important;
+
+            // TRIỆT TIÊU TOÀN BỘ DẤU CHẤM TRÒN DO LỚP GIẢ SẢN SINH (Bắt đúng bệnh)
+            &::before, &::after {
+                display: none !important;
+                content: none !important;
+            }
+
+            a {
+                position: relative !important;
+                color: #1c1c1c !important;
+                font-size: 16px !important;
+                display: inline-block !important;
+
+                // Số hiển thị trên icon (ví dụ: số 1, số 3)
+                span {
+                    position: absolute !important;
+                    right: -10px !important;
+                    top: -10px !important;
+                    height: 15px !important;
+                    width: 15px !important;
+                    background: #7fad39 !important;
+                    color: #ffffff !important;
+                    border-radius: 50% !important;
+                    font-size: 10px !important;
+                    font-weight: 700 !important;
+                    text-align: center !important;
+                    line-height: 15px !important;
+                }
+            }
+        }
+    }
+
+    // Chữ "Mặt hàng: 1.000.000đ" đứng sau cụm icon
+    .header__cart__price {
+        font-size: 14px !important;
+        color: #1c1c1c !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-block !important;
+
+        span {
+            color: #1c1c1c !important;
+            font-weight: 700 !important;
+        }
+    }
+}
+
+    /* 6. KHU VỰC NGÔN NGỮ VÀ ĐĂNG NHẬP */
+    .humberger__menu__widget {
+        margin-bottom: 20px !important;
+        padding-bottom: 15px !important;
+        border-bottom: 1px solid #e1e1e1 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 20px !important;
+
+        .header__top__right__language {
+            position: relative !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            font-size: 14px !important;
+            color: #1c1c1c !important;
+
+            &::after {
+                content: "" !important;
+                position: absolute !important;
+                right: -10px !important;
+                top: 2px !important;
+                height: 14px !important;
+                width: 1px !important;
+                background: #e1e1e1 !important;
+            }
+
+            i {
+                font-size: 12px !important;
+                margin: 0 !important;
+            }
+
+            ul {
+                position: absolute !important;
+                left: 0 !important;
+                top: 22px !important;
+                background: #222222 !important;
+                width: 90px !important;
+                padding: 5px 0 !important;
+                z-index: 99 !important;
+                display: none !important;
+                list-style: none !important;
+
+                li {
+                    list-style: none !important;
+                    margin: 0 !important;
+                    
+                    a {
+                        color: #ffffff !important;
+                        padding: 4px 12px !important;
+                        font-size: 12px !important;
+                        display: block !important;
+                    }
+                }
+            }
+
+            &:hover ul {
+                display: block !important;
+            }
+        }
+
+        .header__top__right__auth {
+            font-size: 14px !important;
+            margin: 0 !important;
+
+            a {
+                color: #1c1c1c !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+            }
+        }
+    }
+
+    /* 7. DANH SÁCH MENU DI ĐỘNG CHUẨN ĐỀ BÀI (Ẩn các trang con) */
+    .humberger__menu__nav {
+        margin-bottom: 25px !important;
+
+        ul {
+            padding: 0 !important;
+            margin: 0 !important;
+            list-style: none !important;
+
+            li {
+                list-style: none !important;
+                border-bottom: 1px solid #e1e1e1 !important;
+                margin: 0 !important;
+
+                &::before {
+                    display: none !important;
+                }
+
+                a {
+                    font-size: 15px !important;
+                    color: #1c1c1c !important;
+                    padding: 12px 0 !important;
+                    display: block !important;
+                    font-weight: 500 !important;
+                }
+
+                /* Ẩn hoàn toàn các sub-menu con xổ xuống (Cửa hàng chi tiết, giỏ hàng,...) để giống hệt đề bài */
+                ul, .header__menu__dropdown {
+                    display: none !important; 
+                }
+            }
+        }
+    }
+
+    /* 8. CÁC ICON MẠNG XÃ HỘI VÀ CONTACT EMAIL */
+    .header__top__right__social {
+        margin-bottom: 20px !important;
+        padding: 0 !important;
+        display: flex !important;
+        gap: 20px !important;
+
+        a {
+            display: inline-block !important;
+            font-size: 14px !important;
+            color: #1c1c1c !important;
+        }
+    }
+
+    .humberger__menu__contact {
+        padding: 0 !important;
+        
+        ul {
+            padding: 0 !important;
+            margin: 0 !important;
+            list-style: none !important;
+
+            li {
+                list-style: none !important;
+                font-size: 14px !important;
+                color: #6f6f6f !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+        }
+    }
+}
+
+/* Khóa cuộn màn hình khi đang bật thanh menu mobile */
+body.over_hid {
+    overflow: hidden !important;
+}
+
+/* ==========================================================================
+   TÁCH BIỆT: ĐOẠN ĐIỀU KIỆN DÀNH CHO MÀN HÌNH LỚN PC (TRÊN 992PX)
+   ========================================================================== */
+@media only screen and (min-width: 992px) {
+    .humberger__open,
+    .humberger__menu__wrapper,
+    .humberger__menu__overlay {
+        display: none !important;
+    }
+}

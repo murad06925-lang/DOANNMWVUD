@@ -16,8 +16,8 @@ const genres = [
 
 const titles = [
     "AVENGERS: ENDGAME",
-    "DORAEMON: ĐẢO GIẤU VÀNG",
-    "LẬT MẶT 7",
+    "AVATAR: THE WAY OF WATER",
+   "TITANIC",
     "CONAN: NGÔI SAO NĂM CÁNH",
     "THÁC ĐÈN MA QUÁI",
     "FAST X",

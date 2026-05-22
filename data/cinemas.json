@@ -1,0 +1,77 @@
+[
+  {
+    "_id": "c1",
+    "city": "TP Hồ Chí Minh",
+    "name": "CGV Vincom Landmark 81"
+  },
+  {
+    "_id": "c2",
+    "city": "TP Hồ Chí Minh",
+    "name": "CGV Aeon Mall Bình Tân"
+  },
+  {
+    "_id": "c6",
+    "city": "TP Hồ Chí Minh",
+    "name": "CGV Crescent Mall"
+  },
+  {
+    "_id": "c7",
+    "city": "TP Hồ Chí Minh",
+    "name": "CGV VivoCity"
+  },
+  {
+    "_id": "c8",
+    "city": "TP Hồ Chí Minh",
+    "name": "CGV Sư Vạn Hạnh"
+  },
+  {
+    "_id": "c3",
+    "city": "Hà Nội",
+    "name": "CGV Vincom Royal City"
+  },
+  {
+    "_id": "c9",
+    "city": "Hà Nội",
+    "name": "CGV Vincom Bà Triệu"
+  },
+  {
+    "_id": "c10",
+    "city": "Hà Nội",
+    "name": "CGV Aeon Mall Long Biên"
+  },
+  {
+    "_id": "c4",
+    "city": "Đà Nẵng",
+    "name": "CGV Vincom Đà Nẵng"
+  },
+  {
+    "_id": "c11",
+    "city": "Đà Nẵng",
+    "name": "CGV Indochina Riverside"
+  },
+  {
+    "_id": "c5",
+    "city": "Cần Thơ",
+    "name": "CGV Sense City"
+  },
+  {
+    "_id": "c12",
+    "city": "Hải Phòng",
+    "name": "CGV Vincom Imperia"
+  },
+  {
+    "_id": "c13",
+    "city": "Bình Dương",
+    "name": "CGV Aeon Mall Bình Dương Canary"
+  },
+  {
+    "_id": "c14",
+    "city": "Đồng Nai",
+    "name": "CGV Big C Đồng Nai"
+  },
+  {
+    "_id": "c15",
+    "city": "Khánh Hòa",
+    "name": "CGV Nha Trang Center"
+  }
+]

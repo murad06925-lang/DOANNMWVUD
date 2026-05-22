@@ -1,0 +1,18 @@
+[
+    {
+        "_id": "u_259a6a1bbe2c07f7",
+        "name": "khang",
+        "username": "hhhaaa",
+        "passSalt": "deda881323594702ceeac7e763c434e5",
+        "passHash": "8021d611fe2964db87cd28221ca007bb991613d8133a7ce62beaa7ed363a7d53",
+        "createdAt": "2026-05-20T09:19:17.410Z"
+    },
+    {
+        "_id": "u_f452c6addee2e645",
+        "name": "as",
+        "username": "asd",
+        "passSalt": "9b669c8b56359ddc2b808e2bb790da1e",
+        "passHash": "ed960e89f96aac386abb5362739ac9fc73dc5e2ac320cbec77e54bb4967f901a",
+        "createdAt": "2026-05-20T09:22:24.973Z"
+    }
+]
